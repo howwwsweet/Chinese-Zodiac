@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese Zodiac Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #8B0000; /* Dark Red */
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .container, .container * {
+            color: black; /* Ensure all text inside the container is black */
+        }
+        h1 {
+            font-family: 'Press Start 2P', cursive; /* Pixelated font */
+            font-size: 1.8rem;
+            color: #8B0000;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+        }
+        input {
+            width: calc(100% - 30px); /* Adjust width to fit container */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        input:focus {
+            border-color: #8B0000;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            background-color: #808080; /* Grey */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #666666; /* Darker grey on hover */
+        }
+        .clear-button {
+            background-color: #C8A2C8; /* Lilac */
+        }
+        .clear-button:hover {
+            background-color: #B28FB2; /* Slightly darker lilac on hover */
+        }
+        .error-message {
+            color: #ff0000;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+            background-color: #ffe6e6;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ff0000;
+        }
+        #wiseSaying {
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #8B0000;
+            margin: 20px 0;
+        }
+        #zodiacSign, #zodiacInfo, #zodiacPersonality, #zodiacHistory,
+        #zodiacFortune, #zodiacHealth, #zodiacCareer, #zodiacLove,
+        #zodiacLuckyColors, #zodiacLuckyNumbers, #zodiacCompatibleSigns,
+        #zodiacYearlyForecast {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .additional-info {
+            margin-top: 20px;
+            display: none; /* Hide initially */
+        }
+        .additional-info h3 {
+            color: #8B0000;
+            margin-bottom: 10px;
+        }
+        .additional-info p {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #8B0000;
+        }
+        .pixel-art {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #8B0000;
+            margin: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .container {
+                padding: 10px;
+            }
+            input, button {
+                font-size: 0.9rem;
+            }
+            #wiseSaying {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Discover Your Chinese Zodiac Sign</h1>
+        <p id="wiseSaying"></p>
+        <label for="year">Enter Your Birth Year:</label>
+        <input type="number" id="year" min="1900" max="2100" placeholder="e.g., 1990">
+        <button onclick="getZodiacInfo()">Find My Sign</button>
+        <button onclick="clearData()" class="clear-button">Clear Saved Data</button>
+        <p class="error-message" id="errorMessage"></p>
+
+        <h2 id="zodiacSign"></h2>
+        <p id="zodiacInfo"></p>
+        <h3>Personality Traits</h3>
+        <p id="zodiacPersonality"></p>
+        <h3>Historical Context</h3>
+        <p id="zodiacHistory"></p>
+        <h3>Fortune</h3>
+        <p id="zodiacFortune"></p>
+        <h3>Health</h3>
+        <p id="zodiacHealth"></p>
+        <h3>Career</h3>
+        <p id="zodiacCareer"></p>
+        <h3>Love</h3>
+        <p id="zodiacLove"></p>
+
+        <div class="additional-info">
+            <h3>Lucky Colors</h3>
+            <p id="zodiacLuckyColors"></p>
+            <h3>Lucky Numbers</h3>
+            <p id="zodiacLuckyNumbers"></p>
+            <h3>Compatible Signs</h3>
+            <p id="zodiacCompatibleSigns"></p>
+            <h3>Yearly Forecast</h3>
+            <p id="zodiacYearlyForecast"></p>
+        </div>
+
+        <div class="pixel-art"></div>
+        <div class="pixel-art"></div>
+        <div class="pixel-art"></div>
+    </div>
+
+    <script>
+        const zodiacData = {
+            Rat: {
+                chineseCharacter: "鼠",
+                description: "Rats are quick-witted, resourceful, and versatile.",
+                personality: "Rats are known for their intelligence, adaptability, and charm. They are excellent problem-solvers and thrive in social settings.",
+                history: "In Chinese culture, the Rat is the first sign of the zodiac and is associated with wealth and surplus. According to legend, the Rat won the race to determine the zodiac order by riding on the Ox's back.",
+                fortune: "This year brings career growth and financial stability.",
+                health: "Focus on mental well-being and exercise regularly.",
+                career: "Opportunities for promotion and success in business.",
+                love: "A promising year for romantic relationships.",
+                luckyColors: ["Blue", "Gold"],
+                luckyNumbers: [2, 3],
+                compatibleSigns: ["Dragon", "Monkey", "Ox"],
+                yearlyForecast: "This is a year of growth and opportunities. Stay focused and take calculated risks."
+            },
+            Ox: {
+                chineseCharacter: "牛",
+                description: "Oxen are diligent, dependable, and strong.",
+                personality: "Oxen are hardworking, patient, and reliable. They are known for their determination and ability to achieve long-term goals.",
+                history: "The Ox is the second sign of the Chinese zodiac and symbolizes hard work and perseverance. In mythology, the Ox was tricked by the Rat during the zodiac race.",
+                fortune: "A year of steady progress and personal growth.",
+                health: "Maintain a balanced diet and proper rest.",
+                career: "Hard work will bring recognition and rewards.",
+                love: "Good time for strengthening existing relationships.",
+                luckyColors: ["Green", "Yellow"],
+                luckyNumbers: [1, 9],
+                compatibleSigns: ["Rat", "Snake", "Rooster"],
+                yearlyForecast: "Patience and persistence will pay off. Focus on long-term goals."
+            },
+            Tiger: {
+                chineseCharacter: "虎",
+                description: "Tigers are brave, confident, and competitive.",
+                personality: "Tigers are natural leaders with a strong sense of justice. They are courageous, energetic, and love challenges.",
+                history: "The Tiger is the third sign of the Chinese zodiac and symbolizes power and bravery. In Chinese culture, Tigers are seen as protectors against evil spirits.",
+                fortune: "Expect challenges but also great opportunities.",
+                health: "Avoid stress and focus on relaxation.",
+                career: "New projects may bring success but require patience.",
+                love: "A year of passion and romance.",
+                luckyColors: ["Blue", "Gray"],
+                luckyNumbers: [1, 3],
+                compatibleSigns: ["Horse", "Dog", "Pig"],
+                yearlyForecast: "This year will test your resilience, but it will also bring rewards."
+            },
+            Rabbit: {
+                chineseCharacter: "兔",
+                description: "Rabbits are quiet, elegant, and kind.",
+                personality: "Rabbits are gentle, compassionate, and artistic. They value harmony and avoid conflict whenever possible.",
+                history: "The Rabbit is the fourth sign of the Chinese zodiac and is associated with longevity and peace. In folklore, the Rabbit is often depicted as a companion of the Moon Goddess.",
+                fortune: "A peaceful and prosperous year ahead.",
+                health: "Pay attention to emotional well-being.",
+                career: "Success through teamwork and cooperation.",
+                love: "A good year for marriage and long-term commitments.",
+                luckyColors: ["Pink", "Purple"],
+                luckyNumbers: [3, 4],
+                compatibleSigns: ["Sheep", "Pig", "Dog"],
+                yearlyForecast: "A calm and harmonious year. Focus on relationships and personal growth."
+            },
+            Dragon: {
+                chineseCharacter: "龙",
+                description: "Dragons are intelligent, enthusiastic, and determined.",
+                personality: "Dragons are charismatic, ambitious, and full of energy. They are natural-born leaders who inspire others.",
+                history: "The Dragon is the fifth sign of the Chinese zodiac and is considered the most powerful and auspicious. Dragons are symbols of strength, luck, and success.",
+                fortune: "A year full of new opportunities and prosperity.",
+                health: "Stay active and maintain a healthy lifestyle.",
+                career: "Leadership roles may come your way.",
+                love: "Exciting romantic prospects await.",
+                luckyColors: ["Gold", "Silver"],
+                luckyNumbers: [1, 6],
+                compatibleSigns: ["Rat", "Monkey", "Rooster"],
+                yearlyForecast: "A dynamic year with many opportunities. Be bold and take initiative."
+            },
+            Snake: {
+                chineseCharacter: "蛇",
+                description: "Snakes are enigmatic, intelligent, and wise.",
+                personality: "Snakes are intuitive, analytical, and graceful. They are deep thinkers who value wisdom and knowledge.",
+                history: "The Snake is the sixth sign of the Chinese zodiac and is associated with mystery and transformation. In Chinese mythology, Snakes are often linked to healing and medicine.",
+                fortune: "A year to trust your instincts and take calculated risks.",
+                health: "Focus on mindfulness and relaxation.",
+                career: "New career paths may open up.",
+                love: "A year of deep emotional connections.",
+                luckyColors: ["Black", "Red"],
+                luckyNumbers: [2, 8],
+                compatibleSigns: ["Ox", "Rooster", "Monkey"],
+                yearlyForecast: "A transformative year. Trust your intuition and embrace change."
+            },
+            Horse: {
+                chineseCharacter: "马",
+                description: "Horses are animated, active, and energetic.",
+                personality: "Horses are adventurous, independent, and full of life. They love freedom and are always on the move.",
+                history: "The Horse is the seventh sign of the Chinese zodiac and symbolizes speed, endurance, and success. Horses are often associated with travel and exploration.",
+                fortune: "An adventurous and rewarding year.",
+                health: "Stay physically active and eat well.",
+                career: "Business ventures may bring success.",
+                love: "Love life will be vibrant and full of surprises.",
+                luckyColors: ["Yellow", "Green"],
+                luckyNumbers: [3, 4],
+                compatibleSigns: ["Tiger", "Dog", "Sheep"],
+                yearlyForecast: "A year of adventure and new experiences. Stay open to opportunities."
+            },
+            Goat: {
+                chineseCharacter: "羊",
+                description: "Goats are gentle, calm, and sympathetic.",
+                personality: "Goats are artistic, empathetic, and peace-loving. They value harmony and are often creative individuals.",
+                history: "The Goat is the eighth sign of the Chinese zodiac and is associated with kindness and compassion. In Chinese culture, Goats are seen as symbols of peace and tranquility.",
+                fortune: "A year of peace and financial stability.",
+                health: "Take care of your immune system.",
+                career: "Progress through hard work and patience.",
+                love: "A great year for personal relationships.",
+                luckyColors: ["Green", "Blue"],
+                luckyNumbers: [2, 7],
+                compatibleSigns: ["Rabbit", "Pig", "Horse"],
+                yearlyForecast: "A peaceful and harmonious year. Focus on family and close relationships."
+            },
+            Monkey: {
+                chineseCharacter: "猴",
+                description: "Monkeys are sharp, smart, and curiosity-driven.",
+                personality: "Monkeys are witty, intelligent, and playful. They are quick learners and love solving problems.",
+                history: "The Monkey is the ninth sign of the Chinese zodiac and is associated with cleverness and innovation. In Chinese folklore, the Monkey King is a famous trickster and hero.",
+                fortune: "A dynamic year with ups and downs.",
+                health: "Ensure proper rest and avoid overworking.",
+                career: "Opportunities for travel and networking.",
+                love: "Exciting relationships are on the horizon.",
+                luckyColors: ["White", "Blue"],
+                luckyNumbers: [4, 9],
+                compatibleSigns: ["Rat", "Dragon", "Snake"],
+                yearlyForecast: "A year of learning and growth. Stay adaptable and embrace change."
+            },
+            Rooster: {
+                chineseCharacter: "鸡",
+                description: "Roosters are observant, hardworking, and courageous.",
+                personality: "Roosters are confident, organized, and detail-oriented. They are natural leaders who value honesty and integrity.",
+                history: "The Rooster is the tenth sign of the Chinese zodiac and is associated with punctuality and diligence. In Chinese culture, Roosters are seen as symbols of good fortune.",
+                fortune: "A year to shine and make bold decisions.",
+                health: "Pay attention to diet and fitness.",
+                career: "Recognition and achievements are possible.",
+                love: "A strong year for committed relationships.",
+                luckyColors: ["Gold", "Brown"],
+                luckyNumbers: [5, 7],
+                compatibleSigns: ["Ox", "Snake", "Dragon"],
+                yearlyForecast: "A year of success and recognition. Stay focused and confident."
+            },
+            Dog: {
+                chineseCharacter: "狗",
+                description: "Dogs are loyal, honest, and kind.",
+                personality: "Dogs are faithful, protective, and compassionate. They are known for their strong sense of justice and loyalty.",
+                history: "The Dog is the eleventh sign of the Chinese zodiac and symbolizes loyalty and honesty. In Chinese culture, Dogs are seen as guardians and protectors.",
+                fortune: "A year of stability and emotional growth.",
+                health: "Maintain work-life balance.",
+                career: "Steady progress in work and finances.",
+                love: "A fulfilling year for romantic connections.",
+                luckyColors: ["Red", "Green"],
+                luckyNumbers: [3, 8],
+                compatibleSigns: ["Tiger", "Horse", "Rabbit"],
+                yearlyForecast: "A stable and rewarding year. Focus on personal and professional growth."
+            },
+            Pig: {
+                chineseCharacter: "猪",
+                description: "Pigs are compassionate, generous, and diligent.",
+                personality: "Pigs are kind-hearted, optimistic, and hardworking. They value relationships and enjoy the finer things in life.",
+                history: "The Pig is the twelfth sign of the Chinese zodiac and is associated with wealth and abundance. In Chinese culture, Pigs are seen as symbols of good luck and prosperity.",
+                fortune: "A prosperous and lucky year.",
+                health: "Stay active and avoid stress.",
+                career: "Financial gains and job security.",
+                love: "A year of happiness in relationships.",
+                luckyColors: ["Yellow", "Gray"],
+                luckyNumbers: [2, 5],
+                compatibleSigns: ["Rabbit", "Goat", "Tiger"],
+                yearlyForecast: "A year of abundance and joy. Enjoy the fruits of your labor."
+            }
+        };
+
+        const wiseSayings = [
+            "千里之行，始于足下。 (A journey of a thousand miles begins with a single step.)",
+            "吃一堑，长一智。 (A fall into a pit, a gain in your wit.)",
+            "不入虎穴，焉得虎子。 (Nothing ventured, nothing gained.)",
+            "塞翁失马，焉知非福。 (A loss may turn out to be a gain.)",
+            "知己知彼，百战不殆。 (Know yourself and know your enemy, and you will never be defeated.)",
+            "滴水穿石。 (Constant dripping wears away the stone.)",
+            "百闻不如一见。 (Seeing is believing.)",
+            "学而不思则罔，思而不学则殆。 (Learning without thinking is labor lost; thinking without learning is perilous.)",
+            "有志者事竟成。 (Where there is a will, there is a way.)",
+            "不怕慢，就怕站。 (It's better to move slowly than to stand still.)",
+            "人心齐，泰山移。 (When people are united, they can move mountains.)",
+            "失败是成功之母。 (Failure is the mother of success.)",
+            "书山有路勤为径，学海无涯苦作舟。 (Diligence is the path to the mountain of knowledge; hard work is the boat to the endless sea of learning.)",
+            "机不可失，时不再来。 (Opportunity knocks but once.)",
+            "路遥知马力，日久见人心。 (Distance tests a horse's stamina; time reveals a person's heart.)",
+            "天下无难事，只怕有心人。 (Nothing is impossible to a willing heart.)",
+            "一寸光阴一寸金，寸金难买寸光阴。 (Time is money, but money cannot buy time.)",
+            "良药苦口利于病，忠言逆耳利于行。 (Good medicine tastes bitter but cures illness; honest advice is hard to hear but benefits conduct.)",
+            "人无远虑，必有近忧。 (If you don't plan ahead, you will find trouble at your doorstep.)",
+            "青出于蓝而胜于蓝。 (The student surpasses the teacher.)",
+            "一言既出，驷马难追。 (A word once spoken cannot be taken back.)",
+            "近朱者赤，近墨者黑。 (You become who you associate with.)",
+            "忍一时风平浪静，退一步海阔天空。 (Endure for a moment, and the storm will pass; take a step back, and the world will broaden.)",
+            "读万卷书，行万里路。 (Read ten thousand books, travel ten thousand miles.)",
+            "不经一事，不长一智。 (You gain wisdom through experience.)",
+            "欲速则不达。 (Haste makes waste.)",
+            "金无足赤，人无完人。 (No gold is pure, and no person is perfect.)",
+            "冰冻三尺，非一日之寒。 (It takes more than a day to freeze three feet of ice.)",
+            "前人栽树，后人乘凉。 (One generation plants the trees; another enjoys the shade.)",
+            "万事开头难。 (The first step is always the hardest.)",
+            "熟能生巧。 (Practice makes perfect.)",
+            "天时不如地利，地利不如人和。 (Favorable weather is not as good as favorable terrain; favorable terrain is not as good as unity among people.)",
+            "宁为玉碎，不为瓦全。 (Better to die with honor than live in disgrace.)",
+            "君子之交淡如水。 (The friendship of a gentleman is as pure as water.)",
+            "己所不欲，勿施于人。 (Do not impose on others what you do not desire yourself.)",
+            "知足常乐。 (Contentment brings happiness.)",
+            "亡羊补牢，未为晚也。 (It's never too late to mend the fold after the sheep are lost.)",
+            "百尺竿头，更进一步。 (Even at the top of a hundred-foot pole, take one more step forward.)",
+            "海内存知己，天涯若比邻。 (A close friend is like a neighbor, even if they are far away.)",
+            "君子坦荡荡，小人长戚戚。 (A noble person is open and composed; a petty person is always worried.)",
+            "满招损，谦受益。 (Pride leads to loss; humility brings gain.)",
+            "人非圣贤，孰能无过。 (To err is human.)",
+            "天网恢恢，疏而不漏。 (The net of heaven is vast; its meshes are wide, but nothing escapes it.)",
+            "学如逆水行舟，不进则退。 (Learning is like rowing upstream; if you don't advance, you will fall behind.)",
+            "言必信，行必果。 (Be true in word and resolute in deed.)",
+            "一日不见，如隔三秋。 (A day apart feels like three years.)",
+            "有志不在年高。 (Age does not determine ambition.)",
+            "种瓜得瓜，种豆得豆。 (You reap what you sow.)",
+            "众人拾柴火焰高。 (Many hands make light work.)"
+        ];
+
+        function displayWiseSaying() {
+            const randomIndex = Math.floor(Math.random() * wiseSayings.length);
+            document.getElementById("wiseSaying").innerText = wiseSayings[randomIndex];
+        }
+
+        window.onload = function () {
+            const savedYear = localStorage.getItem("birthYear");
+            if (savedYear) {
+                document.getElementById("year").value = savedYear;
+                getZodiacInfo();
+            }
+            displayWiseSaying();
+        };
+
+        function getZodiacInfo() {
+            const yearInput = document.getElementById("year").value;
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (!yearInput || isNaN(yearInput)) {
+                errorMessage.innerText = "Please enter a valid year.";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            const year = parseInt(yearInput);
+
+            if (year < 1900 || year > 2100) {
+                errorMessage.innerText = "Please enter a year between 1900 and 2100.";
+                errorMessage.style.display = "block";
+                return;
+            } else {
+                errorMessage.style.display = "none";
+            }
+
+            try {
+                const zodiacs = ["Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"];
+                const index = (year - 4) % 12;
+                const sign = zodiacs[index];
+                const info = zodiacData[sign];
+
+                if (!info) {
+                    throw new Error("Data for this zodiac sign is not available.");
+                }
+
+                localStorage.setItem("birthYear", year);
+
+                document.getElementById("zodiacSign").innerText = `Your Chinese Zodiac Sign: ${sign} (${info.chineseCharacter})`;
+                document.getElementById("zodiacInfo").innerText = info.description;
+                document.getElementById("zodiacPersonality").innerText = info.personality;
+                document.getElementById("zodiacHistory").innerText = info.history;
+                document.getElementById("zodiacFortune").innerText = info.fortune;
+                document.getElementById("zodiacHealth").innerText = info.health;
+                document.getElementById("zodiacCareer").innerText = info.career;
+                document.getElementById("zodiacLove").innerText = info.love;
+
+                document.getElementById("zodiacLuckyColors").innerText = `Lucky Colors: ${info.luckyColors.join(", ")}`;
+                document.getElementById("zodiacLuckyNumbers").innerText = `Lucky Numbers: ${info.luckyNumbers.join(", ")}`;
+                document.getElementById("zodiacCompatibleSigns").innerText = `Compatible Signs: ${info.compatibleSigns.join(", ")}`;
+                document.getElementById("zodiacYearlyForecast").innerText = `Yearly Forecast: ${info.yearlyForecast}`;
+
+                const elementsToFadeIn = [
+                    "#zodiacSign", "#zodiacInfo", "#zodiacPersonality", "#zodiacHistory",
+                    "#zodiacFortune", "#zodiacHealth", "#zodiacCareer", "#zodiacLove",
+                    "#zodiacLuckyColors", "#zodiacLuckyNumbers", "#zodiacCompatibleSigns", "#zodiacYearlyForecast"
+                ];
+
+                elementsToFadeIn.forEach((selector) => {
+                    const element = document.querySelector(selector);
+                    if (element) {
+                        element.classList.add("fade-in");
+                        element.style.opacity = "1";
+                        element.style.transform = "translateY(0)";
+                    }
+                });
+
+                document.querySelector(".additional-info").style.display = "block";
+                displayWiseSaying();
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            }
+        }
+
+        function clearData() {
+            localStorage.removeItem("birthYear");
+            document.getElementById("year").value = "";
+            document.querySelectorAll("#zodiacSign, #zodiacInfo, #zodiacPersonality, #zodiacHistory, #zodiacFortune, #zodiacHealth, #zodiacCareer, #zodiacLove, .additional-info p").forEach(el => {
+                el.innerText = "";
+                el.classList.remove("fade-in");
+                el.style.opacity = "0";
+                el.style.transform = "translateY(20px)";
+            });
+            document.querySelector(".additional-info").style.display = "none";
+            alert("Saved data cleared.");
+        }
+    </script>
+</body>
+</html>
